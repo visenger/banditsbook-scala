@@ -49,9 +49,11 @@ object Hedge {
       )
 
       override def selectArm(arms: Seq[Arm[Double]], state: State): Int = {
-        val gains = state.gains
-        val η = state.η
-        val p = exp(gains / η) / sum(exp(gains / η))
+        val gains: Vector[Double] = state.gains
+        val η: Double = state.η
+        var p = exp(gains / η) / sum(exp(gains / η))
+
+        println(s""" select arm method: ${p.toArray.mkString(",")}""")
         CategoricalDistribution(p).draw
       }
 

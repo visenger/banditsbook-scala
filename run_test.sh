@@ -28,7 +28,8 @@ OPEN=$(which open)
 PLOT_TOOL_DIR="plot"
 OUTPUT_DIR=${RUN_TEST_OUTPUT_DIR:-output}
 
-available_algs=(standard-epsilon-greedy standard-softmax exp3 hedge ucb1)
+#available_algs=(standard-epsilon-greedy standard-softmax exp3 hedge ucb1)
+available_algs=(standard-softmax)
 
 function show_usage(){
     cat <<EOS

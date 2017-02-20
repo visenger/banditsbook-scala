@@ -38,7 +38,8 @@ object TracedAlgorithmDriver {
                                                  algState: AlgorithmState, trace: Trace[Reward])
 }
 
-case class TracedAlgorithmDriver[Reward: Zero: ClassTag, AlgorithmState](algo: Algorithm[Reward, AlgorithmState])(implicit zeroInt: Zero[Int]) {
+case class TracedAlgorithmDriver[Reward: Zero: ClassTag, AlgorithmState](algo: Algorithm[Reward, AlgorithmState])
+                                                                        (implicit zeroInt: Zero[Int]) {
   import CState._
   import TracedAlgorithmDriver._
 

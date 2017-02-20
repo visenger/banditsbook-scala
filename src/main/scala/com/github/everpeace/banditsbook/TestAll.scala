@@ -20,21 +20,30 @@
  */
 
 package com.github.everpeace.banditsbook
+
 import com.github.everpeace.banditsbook.algorithm._
 
 object TestAll extends App {
-  new epsilon_greedy._TestStandard{}.run()
+  new epsilon_greedy._TestStandard {}.run()
   println()
 
-  new softmax._TestStandard{}.run()
-  println()
+  //  new softmax._TestStandard{}.run()
+  //  println()
+  //
+  //  new exp3._TestExp3 {}.run()
+  //  println()
+  //
+  //  new hedge._TestHedge {}.run()
+  //  println()
+  //
+  //  new ucb._TestUCB1{}.run()
+  //  println()
+}
 
-  new exp3._TestExp3 {}.run()
-  println()
+object TestAllMain {
+  def main(args: Array[String]): Unit = {
+    new ucb._TestUCB1{}.run()
+      println()
 
-  new hedge._TestHedge {}.run()
-  println()
-
-  new ucb._TestUCB1{}.run()
-  println()
+  }
 }

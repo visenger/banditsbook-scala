@@ -40,6 +40,18 @@ trait DemoBase {
   arm1.draw()
   arm1.draw()
 
+  val arm1a = BernoulliArm(0.74)
+  arm1.draw()
+  arm1.draw()
+
+  val arm1b = BernoulliArm(0.1)
+  arm1.draw()
+  arm1.draw()
+
+  val arm1c = BernoulliArm(0.12)
+  arm1.draw()
+  arm1.draw()
+
   val arm2 = NormalArm(10.0, 1.0)
   arm2.draw()
   arm2.draw()
@@ -58,13 +70,55 @@ trait DemoBase {
   val algos = Seq(algo1, algo2, algo3, algo4)
 
   val arms = scala.collection.immutable.Seq(arm1, arm2, arm3)
+  val bernoulliArms = scala.collection.immutable.Seq(arm1, arm1a, arm1b, arm1c)
   val t = 1000
   val sep = ","
 
+  def t_times(f: => Unit) = for {t <- 0 until t} {
+    f
+  }
+
+  def initAlg(f: Double => Unit) = Seq(0.1d, 0.2d, 0.3d, 0.4d, 0.5d).foreach(i => f(i))
 }
 
+object SimpleDemo extends DemoBase with App {
+
+  import algorithm._
+
+  /*
+  * val arm1 = BernoulliArm(0.2)
+val arm1a = BernoulliArm(0.74)
+val arm1b = BernoulliArm(0.1)
+val arm1c = BernoulliArm(0.12)
+  * */
+
+
+
+  initAlg {
+    i => {
+
+      val epsilonGreedyAlg = epsilon_greedy.Standard.Algorithm(ε = i)
+
+      var greedyEpsilon = epsilonGreedyAlg.initialState(bernoulliArms)
+
+      t_times {
+        val chosenArm = epsilonGreedyAlg.selectArm(bernoulliArms, greedyEpsilon)
+        val reward: Double = bernoulliArms(chosenArm).draw()
+        greedyEpsilon = epsilonGreedyAlg.updateState(bernoulliArms, greedyEpsilon, chosenArm, reward)
+      }
+      println(s"      ROUND:  ε=$i ")
+      println(s"      counts: [${greedyEpsilon.counts.valuesIterator.mkString(sep)}]")
+      println(s"expectations: [${greedyEpsilon.expectations.valuesIterator.mkString(sep)}]")
+    }
+  }
+
+
+}
+
+object SoftMaxAlgorithmDemo extends DemoBase
+
 object Demo extends DemoBase with App {
-  def t_times(f: => Unit) = for { t <- 0 until t} { f }
+
 
   println()
 
@@ -119,6 +173,7 @@ object Demo extends DemoBase with App {
 
 
 object DemoMonadic extends DemoBase with App {
+
   import algorithm._
   import arm._
 

@@ -42,8 +42,41 @@ object TestAll extends App {
 
 object TestAllMain {
   def main(args: Array[String]): Unit = {
-    new ucb._TestUCB1{}.run()
-      println()
+    new softmax._TestStandard {}.run()
+    println()
 
+  }
+}
+
+object EpsilonGreedyMABanditRunner {
+  def main(args: Array[String]): Unit = {
+    new epsilon_greedy._TestStandard {}.runFor("banditsbook.algorithm.epsilon_greedy.blackoak")
+    new epsilon_greedy._TestStandard {}.runFor("banditsbook.algorithm.epsilon_greedy.hosp")
+    new epsilon_greedy._TestStandard {}.runFor("banditsbook.algorithm.epsilon_greedy.salaries")
+  }
+}
+
+object SoftmaxMABanditRunner {
+  def main(args: Array[String]): Unit = {
+    new softmax._TestStandard {}.runFor("banditsbook.algorithm.softmax.blackoak")
+    new softmax._TestStandard {}.runFor("banditsbook.algorithm.softmax.hosp")
+    new softmax._TestStandard {}.runFor("banditsbook.algorithm.softmax.salaries")
+  }
+}
+
+object Exp3MABanditRunner {
+  def main(args: Array[String]): Unit = {
+    //exp3
+    new exp3._TestExp3 {}.runFor("banditsbook.algorithm.exp3.blackoak")
+    new exp3._TestExp3 {}.runFor("banditsbook.algorithm.exp3.hosp")
+    new exp3._TestExp3 {}.runFor("banditsbook.algorithm.exp3.salaries")
+  }
+}
+
+object UCBMABanditRunner {
+  def main(args: Array[String]): Unit = {
+    new ucb._TestUCB1 {}.runFor("banditsbook.algorithm.ucb.ucb1.blackoak")
+    new ucb._TestUCB1 {}.runFor("banditsbook.algorithm.ucb.ucb1.hosp")
+    new ucb._TestUCB1 {}.runFor("banditsbook.algorithm.ucb.ucb1.salaries")
   }
 }

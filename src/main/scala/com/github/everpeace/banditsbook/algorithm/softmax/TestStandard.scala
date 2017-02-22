@@ -37,23 +37,37 @@ object TestStandard extends _TestStandard with App {
 }
 
 trait _TestStandard {
+
+  var baseKey = "banditsbook.algorithm.softmax.test-standard"
+
+  def runFor(config: String): Unit = {
+    baseKey = config
+    run()
+  }
+
   def run() = {
-//    implicit val randBasis = RandBasis.mt0
+    //    implicit val randBasis = RandBasis.mt0
 
     val conf = ConfigFactory.load()
-    val baseKey = "banditsbook.algorithm.softmax.test-standard"
+
     val (_means, Some(τs), horizon, nSims, outDir) = readConfig(conf, baseKey, Some("τs"))
     val means = shuffle(_means)
-    val arms = Seq(means:_*).map(μ => BernoulliArm(μ))
+    val arms = Seq(means: _*).map(μ => BernoulliArm(μ))
 
-    val outputPath = new File(outDir, "test-standard-softmax-results.csv")
+    var fileName = "test-standard-softmax-results.csv"
+    fileName = conf.getString(s"${baseKey}.output.file") match {
+      case null => fileName
+      case _ => conf.getString(s"${baseKey}.output.file")
+    }
+
+    val outputPath = new File(outDir, fileName)
     val file = new PrintWriter(outputPath.toString)
     file.write("tau, sim_num, step, chosen_arm, reward, cumulative_reward\n")
     try {
       println("-------------------------------")
       println("Standard Softmax Algorithm")
       println("-------------------------------")
-      println(s"   arms = ${means.map("(μ="+_+")").mkString(", ")} (Best Arm = ${argmax(means)})")
+      println(s"   arms = ${means.map("(μ=" + _ + ")").mkString(", ")} (Best Arm = ${argmax(means)})")
       println(s"horizon = $horizon")
       println(s"  nSims = $nSims")
       println(s"      τ = (${τs.mkString(",")})")
@@ -66,7 +80,7 @@ trait _TestStandard {
         println(s"starts simulation on τ=$τ.")
 
         val algo = Standard.Algorithm(τ)
-        val res = TestRunner.run(algo, arms, nSims, horizon)
+        val res: TestRunnerResult = TestRunner.run(algo, arms, nSims, horizon)
 
         for {
           sim <- 0 until nSims
@@ -74,13 +88,77 @@ trait _TestStandard {
           val st = sim * horizon
           val end = ((sim + 1) * horizon) - 1
         }
-        val finalRewards = res.cumRewards((horizon-1) until (nSims * horizon, horizon))
+        val finalRewards = res.cumRewards((horizon - 1) until(nSims * horizon, horizon))
         import breeze.stats._
         val meanAndVar = meanAndVariance(finalRewards)
         meanOfFinalRewards += τ -> meanAndVar
         println(s"reward stats: ${TestRunner.toString(meanAndVar)}")
 
-        res.rawResults.valuesIterator.foreach{ v =>
+        res.rawResults.valuesIterator.foreach { v =>
+          file.write(s"${Seq(τ, v._1, v._2, v._3, v._4, v._5).mkString(",")}\n")
+        }
+        println(s"finished simulation on τ=$τ.")
+      }
+      println("")
+      println(s"reward stats summary")
+      println(s"${meanOfFinalRewards.iterator.toSeq.sortBy(_._1).map(p => (s"τ=${p._1}", TestRunner.toString(p._2))).mkString("\n")}")
+    } finally {
+      file.close()
+      println("")
+      println(s"results are written to ${outputPath}")
+    }
+  }
+
+  def runLog() = {
+    //    implicit val randBasis = RandBasis.mt0
+
+    val conf = ConfigFactory.load()
+
+    val (_means, Some(τs), horizon, nSims, outDir) = readConfig(conf, baseKey, Some("τs"))
+    val means = shuffle(_means)
+    val arms = Seq(means: _*).map(μ => BernoulliArm(μ))
+
+    var fileName = "test-standard-softmax-results.csv"
+    fileName = conf.getString(s"${baseKey}.output.file") match {
+      case null => fileName
+      case _ => conf.getString(s"${baseKey}.output.file")
+    }
+
+    val outputPath = new File(outDir, fileName)
+    val file = new PrintWriter(outputPath.toString)
+    file.write("tau, sim_num, step, chosen_arm, reward, cumulative_reward\n")
+    try {
+      println("-------------------------------")
+      println("Standard Softmax Algorithm")
+      println("-------------------------------")
+      println(s"   arms = ${means.map("(μ=" + _ + ")").mkString(", ")} (Best Arm = ${argmax(means)})")
+      println(s"horizon = $horizon")
+      println(s"  nSims = $nSims")
+      println(s"      τ = (${τs.mkString(",")})")
+      println("")
+
+      val meanOfFinalRewards = scala.collection.mutable.Map.empty[Double, MeanAndVariance]
+      val res = for {
+        τ <- τs
+      } yield {
+        println(s"starts simulation on τ=$τ.")
+
+        val algo = Standard.Algorithm(τ)
+        val res: TestRunnerResult = TestRunner.run(algo, arms, nSims, horizon)
+
+        for {
+          sim <- 0 until nSims
+        } {
+          val st = sim * horizon
+          val end = ((sim + 1) * horizon) - 1
+        }
+        val finalRewards = res.cumRewards((horizon - 1) until(nSims * horizon, horizon))
+        import breeze.stats._
+        val meanAndVar = meanAndVariance(finalRewards)
+        meanOfFinalRewards += τ -> meanAndVar
+        println(s"reward stats: ${TestRunner.toString(meanAndVar)}")
+
+        res.rawResults.valuesIterator.foreach { v =>
           file.write(s"${Seq(τ, v._1, v._2, v._3, v._4, v._5).mkString(",")}\n")
         }
         println(s"finished simulation on τ=$τ.")

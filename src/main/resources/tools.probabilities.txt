@@ -1,0 +1,19 @@
++--------+--------+-----------+
+| dataset|  toolid|probability|
++--------+--------+-----------+
+|BLACKOAK|exists-1|      0.415|
+|BLACKOAK|exists-2|      0.315|
+|BLACKOAK|exists-3|      0.284|
+|BLACKOAK|exists-4|      0.319|
+|BLACKOAK|exists-5|      0.523|
+|    HOSP|exists-1|      0.945|
+|    HOSP|exists-2|       0.09|
+|    HOSP|exists-3|      0.295|
+|    HOSP|exists-4|      0.217|
+|    HOSP|exists-5|      0.262|
+|SALARIES|exists-1|      0.002|
+|SALARIES|exists-2|      0.099|
+|SALARIES|exists-3|      0.033|
+|SALARIES|exists-4|      0.151|
+|SALARIES|exists-5|      0.131|
++--------+--------+-----------+

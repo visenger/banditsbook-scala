@@ -34,7 +34,9 @@ source(file.path(script.basename, "read_data.r"))
 library(stringr)
 
 # read data
-datafile_path <- file.path(script.basename, "..", outdir, "test-standard-epsilon-greedy-results.csv")
+file.name<-"epsilon_greedy.salaries.results.csv"
+datafile_path <- file.path(script.basename, "..", outdir, file.name)
+#datafile_path <- file.path(script.basename, "..", outdir, "test-standard-epsilon-greedy-results.csv")
 df <- read_data_with_hyper_param(datafile_path)
 
 # plot

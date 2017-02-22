@@ -40,11 +40,11 @@ trait DemoBase {
   arm1.draw()
   arm1.draw()
 
-  val arm1a = BernoulliArm(0.74)
+  val arm1a = BernoulliArm(0.54)
   arm1.draw()
   arm1.draw()
 
-  val arm1b = BernoulliArm(0.1)
+  val arm1b = BernoulliArm(0.3)
   arm1.draw()
   arm1.draw()
 
@@ -59,6 +59,9 @@ trait DemoBase {
   val arm3 = BernoulliArm(0.2)
   arm3.draw()
   arm3.draw()
+
+  //todo: blackoak arms
+
 
   // create algorithm instances
   import algorithm._
@@ -78,7 +81,7 @@ trait DemoBase {
     f
   }
 
-  def initAlg(f: Double => Unit) = Seq(0.1d, 0.2d, 0.3d, 0.4d, 0.5d).foreach(i => f(i))
+  def initAlg(f: Double => Unit) = Seq(0.1d, 0.2d, 0.3d, 0.4d, 0.5d, 0.7d, 0.8d, 0.96d, 1.0d).foreach(i => f(i))
 }
 
 object SimpleDemo extends DemoBase with App {
@@ -115,7 +118,26 @@ val arm1c = BernoulliArm(0.12)
 
 }
 
-object SoftMaxAlgorithmDemo extends DemoBase
+object SoftMaxAlgorithmDemo extends DemoBase with App {
+  println("Standard Softmax algorithm result")
+
+  import algorithm._
+
+  initAlg {
+    τ => {
+      val softMaxAlg = softmax.Standard.Algorithm(τ)
+      var softMaxState = softMaxAlg.initialState(bernoulliArms)
+      t_times {
+        val chosenArm: Int = softMaxAlg.selectArm(bernoulliArms, softMaxState)
+        val reward = bernoulliArms(chosenArm).draw()
+        softMaxState = softMaxAlg.updateState(bernoulliArms, softMaxState, chosenArm, reward)
+      }
+      println(s"        ROUND: τ=${softMaxState.τ} ")
+      println(s"       counts: [${softMaxState.counts.valuesIterator.mkString(sep)}]")
+      println(s" expectations: [${softMaxState.expectations.valuesIterator.mkString(sep)}]")
+    }
+  }
+}
 
 object Demo extends DemoBase with App {
 

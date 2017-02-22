@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 initial.options <- commandArgs(trailingOnly = FALSE)
-file.arg.name <- "--file="
+file.arg.name <- "plot_standard_softmax.r" #"--file="
 script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initial.options)])
 script.basename <- dirname(script.name)
 ourdir.arg.name <- "--outdir="
@@ -34,7 +34,9 @@ source(file.path(script.basename, "read_data.r"))
 library(stringr)
 
 # read data
-datafile_path <- file.path(script.basename, "..", outdir, "test-standard-softmax-results.csv")
+file.name<-"softmax.salaries.results.csv"
+datafile_path <- file.path(script.basename, "..", outdir, file.name)
+#datafile_path <- file.path(script.basename, "..", outdir, "test-standard-softmax-results.csv")
 df <- read_data_with_hyper_param(datafile_path)
 
 # plot

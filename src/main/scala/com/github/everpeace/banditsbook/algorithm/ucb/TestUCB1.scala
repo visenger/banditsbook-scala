@@ -31,32 +31,43 @@ import com.typesafe.config.ConfigFactory
 
 import scala.collection.immutable.Seq
 
-object TestUCB1 extends _TestUCB1 with App{
+object TestUCB1 extends _TestUCB1 with App {
   run()
 }
 
 trait _TestUCB1 {
+  var baseKey = "banditsbook.algorithm.ucb.test-ucb1"
+
+  def runFor(config: String): Unit = {
+    baseKey = config
+    run()
+  }
+
   def run() = {
-//    implicit val randBasis = RandBasis.mt0
+    //    implicit val randBasis = RandBasis.mt0
 
     val conf = ConfigFactory.load()
-    val baseKey = "banditsbook.algorithm.ucb.test-ucb1"
+
     val (_means, _, horizon, nSims, outDir) = readConfig(conf, baseKey)
     val means = shuffle(_means)
-    val arms = Seq(means:_*).map(μ => BernoulliArm(μ))
+    val arms = Seq(means: _*).map(μ => BernoulliArm(μ))
 
-
-    val outputPath = new File(outDir, "test-ucb1-results.csv")
+    var fileName = "test-ucb1-results.csv"
+    fileName = conf.getString(s"${baseKey}.output.file") match {
+      case null => fileName
+      case _ => conf.getString(s"${baseKey}.output.file")
+    }
+    val outputPath = new File(outDir, fileName)
     val file = new PrintWriter(outputPath.toString)
     file.write("sim_num, step, chosen_arm, reward, cumulative_reward\n")
     try {
       println("-------------------------------")
       println("UCB1 Algorithm")
       println("-------------------------------")
-      println(s"   arms = ${means.map("(μ="+_+")").mkString(", ")} (Best Arm = ${argmax(means)})")
+      println(s"   arms = ${means.map("(μ=" + _ + ")").mkString(", ")} (Best Arm = ${argmax(means)})")
       println(s"horizon = $horizon")
       println(s"  nSims = $nSims")
-      println( "The algorithm has no hyper parameters.")
+      println("The algorithm has no hyper parameters.")
       println("")
 
       println(s"starts simulation.")
@@ -68,12 +79,12 @@ trait _TestUCB1 {
         val st = sim * horizon
         val end = ((sim + 1) * horizon) - 1
       }
-      val finalRewards = res.cumRewards((horizon-1) until (nSims * horizon, horizon))
+      val finalRewards = res.cumRewards((horizon - 1) until(nSims * horizon, horizon))
       import breeze.stats._
       val meanAndVar = meanAndVariance(finalRewards)
       println(s"reward stats: ${TestRunner.toString(meanAndVar)}")
 
-      res.rawResults.valuesIterator.foreach{ v =>
+      res.rawResults.valuesIterator.foreach { v =>
         file.write(s"${Seq(v._1, v._2, v._3, v._4, v._5).mkString(",")}\n")
       }
       println(s"finished simulation.")

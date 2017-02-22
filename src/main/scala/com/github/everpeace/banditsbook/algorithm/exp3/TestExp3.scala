@@ -36,24 +36,38 @@ object TestExp3 extends _TestExp3 with App {
   run()
 }
 
-trait _TestExp3{
+trait _TestExp3 {
+
+  var baseKey = "banditsbook.algorithm.exp3.test-exp3"
+
+  def runFor(config: String): Unit = {
+    baseKey = config
+    run()
+  }
+
   def run() = {
-//    implicit val randBasis = RandBasis.mt0
+    //    implicit val randBasis = RandBasis.mt0
 
     val conf = ConfigFactory.load()
-    val baseKey = "banditsbook.algorithm.exp3.test-exp3"
+
     val (_means, Some(γs), horizon, nSims, outDir) = readConfig(conf, baseKey, Some("γs"))
     val means = shuffle(_means)
-    val arms = Seq(means:_*).map(μ => BernoulliArm(μ))
+    val arms = Seq(means: _*).map(μ => BernoulliArm(μ))
 
-    val outputPath = new File(outDir, "test-exp3-results.csv")
+    var fileName = "test-exp3-results.csv"
+    fileName = conf.getString(s"${baseKey}.output.file") match {
+      case null => fileName
+      case _ => conf.getString(s"${baseKey}.output.file")
+    }
+    val outputPath = new File(outDir, fileName)
+    // val outputPath = new File(outDir, "test-exp3-results.csv")
     val file = new PrintWriter(outputPath.toString)
     file.write("gamma, sim_num, step, chosen_arm, reward, cumulative_reward\n")
     try {
       println("-------------------------------")
       println("EXP3 Algorithm")
       println("-------------------------------")
-      println(s"   arms = ${means.map("(μ="+_+")").mkString(", ")} (Best Arm = ${argmax(means)})")
+      println(s"   arms = ${means.map("(μ=" + _ + ")").mkString(", ")} (Best Arm = ${argmax(means)})")
       println(s"horizon = $horizon")
       println(s"  nSims = $nSims")
       println(s"      γ = (${γs.mkString(",")})")
@@ -74,13 +88,13 @@ trait _TestExp3{
           val st = sim * horizon
           val end = ((sim + 1) * horizon) - 1
         }
-        val finalRewards = res.cumRewards((horizon-1) until (nSims * horizon, horizon))
+        val finalRewards = res.cumRewards((horizon - 1) until(nSims * horizon, horizon))
         import breeze.stats._
         val meanAndVar = meanAndVariance(finalRewards)
         meanOfFinalRewards += γ -> meanAndVar
         println(s"reward stats: ${TestRunner.toString(meanAndVar)}")
 
-        res.rawResults.valuesIterator.foreach{ v =>
+        res.rawResults.valuesIterator.foreach { v =>
           file.write(s"${Seq(γ, v._1, v._2, v._3, v._4, v._5).mkString(",")}\n")
         }
         println(s"finished simulation on γ=$γ.")

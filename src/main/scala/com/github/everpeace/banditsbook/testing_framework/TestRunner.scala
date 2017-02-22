@@ -53,21 +53,21 @@ object TestRunner {
   }
 
   case class TestRunnerResult(
-    arms: Seq[Arm[Double]],
-    numSims: Int,
-    horizon: Int,
-    simNums: Vector[Int],
-    stepNums: Vector[Int],
-    chosenArms: Vector[Int],
-    rewards: Vector[Double],
-    cumRewards: Vector[Double],
-    // raw data format:
-    // simNum, step, chosenArm, rewards, cumRewards
-    rawResults: Vector[(Int, Int, Int, Double, Double)]
-  )
+                               arms: Seq[Arm[Double]],
+                               numSims: Int,
+                               horizon: Int,
+                               simNums: Vector[Int],
+                               stepNums: Vector[Int],
+                               chosenArms: Vector[Int],
+                               rewards: Vector[Double],
+                               cumRewards: Vector[Double],
+                               // raw data format:
+                               // simNum, step, chosenArm, rewards, cumRewards
+                               rawResults: Vector[(Int, Int, Int, Double, Double)]
+                             )
 
   def run[AlgState](alg: Algorithm[Double, AlgState], arms: Seq[Arm[Double]], nSims: Int, horizon: Int)
-                   (implicit zeroDouble: Zero[Double], zero:Zero[Int], classTag: ClassTag[Double] )
+                   (implicit zeroDouble: Zero[Double], zero: Zero[Int], classTag: ClassTag[Double])
   = {
     val simNums = zeros[Int](nSims * horizon)
     val stepNums = zeros[Int](nSims * horizon)
@@ -76,7 +76,7 @@ object TestRunner {
     val cumRewards = zeros[Double](nSims * horizon)
     val rawResults = fill(nSims * horizon)((0, 0, 0, 0.0d, 0.0d))
 
-    for { sim <- 0 until nSims }{
+    for {sim <- 0 until nSims} {
       val st = horizon * sim
       val end = (horizon * (sim + 1)) - 1
 

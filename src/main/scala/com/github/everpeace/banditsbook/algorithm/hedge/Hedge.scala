@@ -28,6 +28,7 @@ import breeze.stats.distributions.{Rand, RandBasis}
 import breeze.storage.Zero
 import com.github.everpeace.banditsbook.algorithm._
 import com.github.everpeace.banditsbook.arm.Arm
+import com.github.everpeace.banditsbook.util.NumbersUtil.round
 
 import scala.collection.immutable.Seq
 import scala.reflect.ClassTag
@@ -65,7 +66,7 @@ object Hedge {
         counts.update(chosen, count)
 
         val expectation = gains(chosen) + reward
-        gains.update(chosen, expectation)
+        gains.update(chosen, round(expectation, 4))
 
         state.copy(counts = counts, gains = gains)
       }

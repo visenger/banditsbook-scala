@@ -44,6 +44,8 @@ object UCB1 {
   = {
     new Algorithm[Double, State] {
 
+      import com.github.everpeace.banditsbook.util.NumbersUtil._
+
       override def initialState(arms: Seq[Arm[Double]]): State = State(
         zeros(arms.size), zeros(arms.size)
       )
@@ -64,8 +66,8 @@ object UCB1 {
         val count = counts(chosen) + 1
         counts.update(chosen, count)
 
-        val expectation = (((count - 1) / count.toDouble) * expectations(chosen)) + ((1 / count.toDouble) * reward)
-        expectations.update(chosen, expectation)
+        val expectation: Double = (((count - 1) / count.toDouble) * expectations(chosen)) + ((1 / count.toDouble) * reward)
+        expectations.update(chosen, round(expectation, 4))
 
         state.copy(counts = counts, expectations = expectations)
       }

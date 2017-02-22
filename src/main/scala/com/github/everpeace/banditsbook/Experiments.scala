@@ -1,6 +1,6 @@
 package com.github.everpeace.banditsbook
 
-import com.github.everpeace.banditsbook.algorithm.{exp3, ucb}
+import com.github.everpeace.banditsbook.algorithm.epsilon_greedy.Standard.State
 import com.github.everpeace.banditsbook.arm.BernoulliArm
 import com.typesafe.config.ConfigFactory
 
@@ -47,125 +47,143 @@ trait ExperimentsBase {
 
 }
 
-object SoftMaxExperiments extends ExperimentsBase with App {
+object SoftMaxExperiments extends ExperimentsBase {
 
-  import algorithm._
+  def run() = {
 
-  init_experiment {
-    dataset => {
-      val baseKey = s"$softMaxConfig.$dataset"
+    import algorithm._
 
-      val sims = config.getInt(s"$baseKey.n-sims")
-      val τ = config.getDouble(s"$baseKey.best.τ")
-      val ms: Array[Double] = means(baseKey)
-      val banditArms = bernoulliArms(ms)
+    init_experiment {
+      dataset => {
+        val baseKey = s"$softMaxConfig.$dataset"
 
-      val softMax = softmax.Standard.Algorithm(τ)
-      var softMaxState = softMax.initialState(banditArms)
-      repeat(sims) {
-        val chosenArm: Int = softMax.selectArm(banditArms, softMaxState)
-        val reward = banditArms(chosenArm).draw()
-        softMaxState = softMax.updateState(banditArms, softMaxState, chosenArm, reward)
+        val sims = config.getInt(s"$baseKey.n-sims")
+        val τ = config.getDouble(s"$baseKey.best.τ")
+        val ms: Array[Double] = means(baseKey)
+        val banditArms = bernoulliArms(ms)
+
+        val softMax = softmax.Standard.Algorithm(τ)
+        var softMaxState = softMax.initialState(banditArms)
+        repeat(sims) {
+          val chosenArm: Int = softMax.selectArm(banditArms, softMaxState)
+          val reward = banditArms(chosenArm).draw()
+          softMaxState = softMax.updateState(banditArms, softMaxState, chosenArm, reward)
+        }
+
+        println(s"        SoftMax for ${dataset} ")
+        println(s"        param: τ=${softMaxState.τ} ")
+        println(s"       counts: [${softMaxState.counts.valuesIterator.mkString(sep)}]")
+        println(s" expectations: [${softMaxState.expectations.valuesIterator.mkString(sep)}]")
       }
-
-      println(s"        SoftMax for ${dataset} ")
-      println(s"        param: τ=${softMaxState.τ} ")
-      println(s"       counts: [${softMaxState.counts.valuesIterator.mkString(sep)}]")
-      println(s" expectations: [${softMaxState.expectations.valuesIterator.mkString(sep)}]")
-
     }
   }
 
 
 }
 
-object EpsilonGreedyExperiments extends ExperimentsBase with App {
+object EpsilonGreedyExperiments extends ExperimentsBase {
+  def run() = {
+    import algorithm._
 
-  import algorithm._
+    init_experiment {
+      dataset => {
+        val baseKey = s"$epsilonGreedyConfig.$dataset"
 
-  init_experiment {
-    dataset => {
-      val baseKey = s"$epsilonGreedyConfig.$dataset"
+        val sims = config.getInt(s"$baseKey.n-sims")
+        val ε = config.getDouble(s"$baseKey.best.ε")
+        val ms: Array[Double] = means(baseKey)
+        val banditArms = bernoulliArms(ms)
 
-      val sims = config.getInt(s"$baseKey.n-sims")
-      val ε = config.getDouble(s"$baseKey.best.ε")
-      val ms: Array[Double] = means(baseKey)
-      val banditArms = bernoulliArms(ms)
+        val epsGreedy = epsilon_greedy.Standard.Algorithm(ε)
+        var epsGreedyState: State = epsGreedy.initialState(banditArms)
 
-      val epsGreedy = epsilon_greedy.Standard.Algorithm(ε)
-      var epsGreedyState = epsGreedy.initialState(banditArms)
-      repeat(sims) {
-        val chosenArm: Int = epsGreedy.selectArm(banditArms, epsGreedyState)
-        val reward = banditArms(chosenArm).draw()
-        epsGreedyState = epsGreedy.updateState(banditArms, epsGreedyState, chosenArm, reward)
+        repeat(sims) {
+          val chosenArm: Int = epsGreedy.selectArm(banditArms, epsGreedyState)
+          val reward = banditArms(chosenArm).draw()
+          epsGreedyState = epsGreedy.updateState(banditArms, epsGreedyState, chosenArm, reward)
+        }
+
+        println(s"        EpsilonGreedy for ${dataset} ")
+        println(s"        param: ε=${epsGreedyState.ε} ")
+        println(s"       counts: [${epsGreedyState.counts.valuesIterator.mkString(sep)}]")
+        println(s" expectations: [${epsGreedyState.expectations.valuesIterator.mkString(sep)}]")
       }
-
-      println(s"        EpsilonGreedy for ${dataset} ")
-      println(s"        param: ε=${epsGreedyState.ε} ")
-      println(s"       counts: [${epsGreedyState.counts.valuesIterator.mkString(sep)}]")
-      println(s" expectations: [${epsGreedyState.expectations.valuesIterator.mkString(sep)}]")
-
     }
-
 
   }
 }
 
-object Exp3Experiments extends ExperimentsBase with App {
+object Exp3Experiments extends ExperimentsBase {
+  def run() = {
 
-  import algorithm._
+    import algorithm._
 
-  init_experiment {
-    dataset => {
-      val baseKey = s"$exp3Config.$dataset"
+    init_experiment {
+      dataset => {
+        val baseKey = s"$exp3Config.$dataset"
 
-      val sims = config.getInt(s"$baseKey.n-sims")
-      val γ = config.getDouble(s"$baseKey.best.γ")
-      val ms: Array[Double] = means(baseKey)
-      val banditArms = bernoulliArms(ms)
+        val sims = config.getInt(s"$baseKey.n-sims")
+        val γ = config.getDouble(s"$baseKey.best.γ")
+        val ms: Array[Double] = means(baseKey)
+        val banditArms = bernoulliArms(ms)
 
-      val exp3alg = exp3.Exp3.Algorithm(γ)
-      var exp3algState = exp3alg.initialState(banditArms)
-      repeat(sims) {
-        val chosenArm: Int = exp3alg.selectArm(banditArms, exp3algState)
-        val reward = banditArms(chosenArm).draw()
-        exp3algState = exp3alg.updateState(banditArms, exp3algState, chosenArm, reward)
+        val exp3alg = exp3.Exp3.Algorithm(γ)
+        var exp3algState = exp3alg.initialState(banditArms)
+        repeat(sims) {
+          val chosenArm: Int = exp3alg.selectArm(banditArms, exp3algState)
+          val reward = banditArms(chosenArm).draw()
+          exp3algState = exp3alg.updateState(banditArms, exp3algState, chosenArm, reward)
+        }
+
+        println(s"        EXP3 for ${dataset} ")
+        println(s"        param: γ=${exp3algState.γ} ")
+        println(s"       counts: [${exp3algState.counts.valuesIterator.mkString(sep)}]")
+        println(s"      weights: [${exp3algState.weights.valuesIterator.mkString(sep)}]")
       }
-
-      println(s"        EXP3 for ${dataset} ")
-      println(s"        param: γ=${exp3algState.γ} ")
-      println(s"       counts: [${exp3algState.counts.valuesIterator.mkString(sep)}]")
-      println(s"      weights: [${exp3algState.weights.valuesIterator.mkString(sep)}]")
-
-
     }
   }
 }
 
-object UCBExperiments extends ExperimentsBase with App {
+object UCBExperiments extends ExperimentsBase {
 
-  import algorithm._
+  def run() = {
 
-  init_experiment {
-    dataset => {
-      val baseKey = s"$ucbConfig.$dataset"
+    import algorithm._
 
-      val sims = config.getInt(s"$baseKey.n-sims")
-      val ms: Array[Double] = means(baseKey)
-      val banditArms = bernoulliArms(ms)
+    init_experiment {
+      dataset => {
+        val baseKey = s"$ucbConfig.$dataset"
 
-      val ucbAlg = ucb.UCB1.Algorithm
-      var ucbAlgState = ucbAlg.initialState(banditArms)
-      repeat(sims) {
-        val chosenArm: Int = ucbAlg.selectArm(banditArms, ucbAlgState)
-        val reward = banditArms(chosenArm).draw()
-        ucbAlgState = ucbAlg.updateState(banditArms, ucbAlgState, chosenArm, reward)
+        val sims = config.getInt(s"$baseKey.n-sims")
+        val ms: Array[Double] = means(baseKey)
+        val banditArms = bernoulliArms(ms)
+
+        val ucbAlg = ucb.UCB1.Algorithm
+        var ucbAlgState = ucbAlg.initialState(banditArms)
+        repeat(sims) {
+          val chosenArm: Int = ucbAlg.selectArm(banditArms, ucbAlgState)
+          val reward = banditArms(chosenArm).draw()
+          ucbAlgState = ucbAlg.updateState(banditArms, ucbAlgState, chosenArm, reward)
+        }
+
+        println(s"        UCB for ${dataset} ")
+        println(s"       counts: [${ucbAlgState.counts.valuesIterator.mkString(sep)}]")
+        println(s"      weights: [${ucbAlgState.expectations.valuesIterator.mkString(sep)}]")
       }
-
-      println(s"        UCB for ${dataset} ")
-      println(s"       counts: [${ucbAlgState.counts.valuesIterator.mkString(sep)}]")
-      println(s"      weights: [${ucbAlgState.expectations.valuesIterator.mkString(sep)}]")
     }
+  }
+}
+
+object AllExperimentsRunner {
+
+  def main(args: Array[String]): Unit = {
+    EpsilonGreedyExperiments.run()
+    println("########################################################################")
+    SoftMaxExperiments.run()
+    println("########################################################################")
+    Exp3Experiments.run()
+    println("########################################################################")
+    UCBExperiments.run()
   }
 }
 

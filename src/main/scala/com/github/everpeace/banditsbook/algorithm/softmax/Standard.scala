@@ -30,6 +30,7 @@ import com.github.everpeace.banditsbook.algorithm._
 import com.github.everpeace.banditsbook.arm.Arm
 
 import scala.collection.immutable.Seq
+import scala.math.BigDecimal.RoundingMode
 import scala.reflect.ClassTag
 
 /**
@@ -42,8 +43,11 @@ object Standard {
 
   def Algorithm(τ: Double)(implicit zeroReward: Zero[Double], zeroInt: Zero[Int], tag: ClassTag[Double], rand: RandBasis = Rand)
   = {
+
     require(τ > 0, "τ must be positive.")
     new Algorithm[Double, State] {
+
+      import com.github.everpeace.banditsbook.util.NumbersUtil._
 
       override def initialState(arms: Seq[Arm[Double]]): State = State(
         τ, zeros(arms.size), zeros(arms.size)
@@ -63,11 +67,13 @@ object Standard {
         val count = counts(chosen) + 1
         counts.update(chosen, count)
 
-        val expectation = (((count - 1) / count.toDouble) * expectations(chosen)) + ((1 / count.toDouble) * reward)
-        expectations.update(chosen, expectation)
+        val expectation: Double = (((count - 1) / count.toDouble) * expectations(chosen)) + ((1 / count.toDouble) * reward)
+        expectations.update(chosen, round(expectation, 4))
 
         state.copy(counts = counts, expectations = expectations)
       }
     }
   }
+
+
 }

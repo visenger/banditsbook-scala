@@ -26,6 +26,7 @@ import breeze.stats.distributions.{Bernoulli, Rand, RandBasis}
 import breeze.storage.Zero
 import com.github.everpeace.banditsbook.algorithm.Algorithm
 import com.github.everpeace.banditsbook.arm.Arm
+import com.github.everpeace.banditsbook.util.NumbersUtil.round
 
 import scala.collection.immutable.Seq
 import scala.reflect.ClassTag
@@ -64,7 +65,7 @@ object Standard {
       counts.update(chosen, count)
 
       val expectation = (((count - 1) / count.toDouble) * expectations(chosen)) + ((1 / count.toDouble) * reward)
-      expectations.update(chosen, expectation)
+      expectations.update(chosen, round(expectation, 4))
       state.copy(counts = counts, expectations = expectations)
     }
   }

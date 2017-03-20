@@ -7,9 +7,6 @@ import com.github.everpeace.banditsbook.algorithm.epsilon_greedy.Standard.State
 import com.github.everpeace.banditsbook.arm.BernoulliArm
 import com.typesafe.config.ConfigFactory
 
-import scala.Seq
-import scala.io.Source
-
 /**
   * Created by visenger on 21/02/17.
   */
@@ -47,10 +44,11 @@ trait ExperimentsBase {
   val algConfigs = Seq(epsilonGreedyConfig, softMaxConfig, exp3Config, ucbConfig)
 
   val blackoak = "blackoak"
+  val ext_blackoak = "ext.blackoak"
   val hosp = "hosp"
   val salaries = "salaries"
 
-  val datasets = Seq(blackoak, hosp, salaries)
+  val datasets = Seq(blackoak, hosp, salaries) //Seq(ext_blackoak)
 
   val sep = ","
   val newLine = "\n"
